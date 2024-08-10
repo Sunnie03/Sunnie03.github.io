@@ -1,0 +1,1048 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/icon2.jpg">
+  <link rel="icon" href="/img/icon2.jpg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Sunnie">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="操作系统笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OS王道笔记-第五章-IO管理">
+<meta property="og:url" content="http://example.com/2024/08/10/OS-C5-I-O%E7%AE%A1%E7%90%86/index.html">
+<meta property="og:site_name" content="Sunnie&#39;s blog">
+<meta property="og:description" content="操作系统笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-08-10T07:28:17.000Z">
+<meta property="article:modified_time" content="2024-08-10T07:33:25.679Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="OS">
+<meta property="article:tag" content="IO管理">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>OS王道笔记-第五章-IO管理 - Sunnie&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[],"Options":"home"},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Sunnie&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg/bg7.jpeg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="OS王道笔记-第五章-IO管理"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-08-10 15:28" pubdate>
+          2024年8月10日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          36 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">OS王道笔记-第五章-IO管理</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="5-1-I-O管理概述"><a href="#5-1-I-O管理概述" class="headerlink" title="5.1 I&#x2F;O管理概述"></a>5.1 I&#x2F;O管理概述</h1><ol>
+<li>I&#x2F;O设备分类</li>
+<li><strong>I&#x2F;O接口（又称设备控制器）</strong></li>
+</ol>
+<p>（1）设备控制器与CPU的接口</p>
+<p>​	数据线：数据、状态信息。</p>
+<p>​	地址线：I&#x2F;O接口的寄存器编号。</p>
+<p>​	控制线：控制信号。</p>
+<p>（2）设备控制器与设备的接口</p>
+<p>​	可连接一个或多个设备。</p>
+<p>（3）I&#x2F;O逻辑</p>
+<ol>
+<li>I&#x2F;O接口类型</li>
+<li><strong>I&#x2F;O端口</strong>：指可被CPU直接访问的<strong>寄存器</strong>。</li>
+</ol>
+<p>数据寄存器、状态寄存器、控制寄存器。</p>
+<p>（1）独立编址：I&#x2F;O端口地址空间与主存地址空间独立。</p>
+<p>​	(a) 两者可重叠。相同地址可能属于不同地址空间。</p>
+<p>​	(b) 寻址快；I&#x2F;O指令少，程序清晰但灵活性差；控制复杂。</p>
+<p>（2）统一编址（又称 内存映射I&#x2F;O）</p>
+<p>​	(a) I&#x2F;O端口和主存单元在同一地址空间的不同分段，可根据地址范围区分。</p>
+<p>​	(b) 灵活；端口编址空间大；降低寻址速度；降低主存可用容量。</p>
+<h2 id="5-1-2-I-O控制方式"><a href="#5-1-2-I-O控制方式" class="headerlink" title="5.1.2 I&#x2F;O控制方式"></a>5.1.2 I&#x2F;O控制方式</h2><h3 id="1-程序直接控制方式"><a href="#1-程序直接控制方式" class="headerlink" title="1.程序直接控制方式"></a>1.程序直接控制方式</h3><ol>
+<li>又称程序轮询方式。</li>
+<li>CPU和I&#x2F;O设备只能串行工作。CPU利用率低。</li>
+<li>未采用中断。</li>
+</ol>
+<h3 id="2-中断驱动方式"><a href="#2-中断驱动方式" class="headerlink" title="2.中断驱动方式"></a>2.中断驱动方式</h3><ol>
+<li>I&#x2F;O设备主动打断CPU运行并请求服务。</li>
+<li>在每个指令周期的末期，CPU检查中断信号。</li>
+<li>CPU和设备并行。</li>
+<li>设备与内存间的数据交换必须经过CPU。</li>
+<li>CPU以字（节）为单位。</li>
+</ol>
+<h3 id="3-DMA方式（直接存储器存取）"><a href="#3-DMA方式（直接存储器存取）" class="headerlink" title="3.DMA方式（直接存储器存取）"></a>3.DMA方式（直接存储器存取）</h3><p>（1）以数据块为基本传送单位。</p>
+<p>（2）传送数据不再经过CPU。（I&#x2F;O设备与内存间存在直接的数据交换通路。）</p>
+<p>（3）仅在传送数据的开始和结束，才需要CPU干预。</p>
+<p>（4）数据传送结束后，DMA控制器向CPU发送中断信号。</p>
+<p>（5）有命令&#x2F;状态寄存器、内存地址寄存器、数据寄存器、数据计数器。</p>
+<p>（6）CPU需要指定传送字节数，以及内存的起始目标地址（输入时）&#x2F;设备的内存源地址（输出时）。</p>
+<p>（7）每个DMA控制器对应一台设备，与内存传送数据。</p>
+<p>（8）CPU和设备并行。</p>
+<h3 id="4-通道控制方式"><a href="#4-通道控制方式" class="headerlink" title="4.通道控制方式"></a>4.通道控制方式</h3><p>（1）I&#x2F;O通道是一种特殊的处理机，属于硬件。</p>
+<p>（2）CPU要指明 通道程序在内存中的位置 和 要访问的I&#x2F;O设备。</p>
+<p>（3）CPU、通道、I&#x2F;O设备并行。</p>
+<p>（4）通道不需要CPU指明传输的数据块大小，以及传输的内存位置。</p>
+<p>（5）一个通道可以控制多台设备与内存的数据交换。</p>
+<p>（6）与一般处理机的区别：（a）指令类型单一（b）没有自己的内存，通道与CPU共享内存。</p>
+<h2 id="5-1-3-I-O软件层次结构"><a href="#5-1-3-I-O软件层次结构" class="headerlink" title="5.1.3 I&#x2F;O软件层次结构"></a>5.1.3 I&#x2F;O软件层次结构</h2><p>从上到下，分别是 <strong>用户层软件、设备独立性软件、设备驱动程序、中断处理程序</strong>。最下面是硬件。</p>
+<p>设备独立性软件、设备驱动程序、中断处理程序都在os内核。</p>
+<p>不同层之间，接口。</p>
+<h3 id="（一）用户层软件"><a href="#（一）用户层软件" class="headerlink" title="（一）用户层软件"></a>（一）用户层软件</h3><p>与用户交互。</p>
+<p>用户层I&#x2F;O软件通过系统调用获取os服务。</p>
+<h3 id="（二）设备独立性软件"><a href="#（二）设备独立性软件" class="headerlink" title="（二）设备独立性软件"></a>（二）设备独立性软件</h3><p>也称设备无关性。</p>
+<ol>
+<li>设备独立性：所用设备不局限于某个具体的物理设备。</li>
+<li>应用程序中，使用逻辑设备名；实际执行，将逻辑设备名 映射成 物理设备名。</li>
+</ol>
+<h3 id="（三）设备驱动程序"><a href="#（三）设备驱动程序" class="headerlink" title="（三）设备驱动程序"></a>（三）设备驱动程序</h3><ol>
+<li>与硬件直接相关。负责实现系统对设备发出的操作指令。</li>
+<li>接收上层抽象I&#x2F;O要求，转换为具体要求后，发送给设备控制器。</li>
+<li>将设备控制器发来信号传给上层。</li>
+<li>每类设备 配置一个 设备驱动程序</li>
+</ol>
+<h3 id="（四）中断处理程序"><a href="#（四）中断处理程序" class="headerlink" title="（四）中断处理程序"></a>（四）中断处理程序</h3><p>底层。</p>
+<h2 id="5-1-4-应用程序I-O接口"><a href="#5-1-4-应用程序I-O接口" class="headerlink" title="5.1.4 应用程序I&#x2F;O接口"></a>5.1.4 应用程序I&#x2F;O接口</h2><p>（一）I&#x2F;O接口分类</p>
+<ol>
+<li>字符设备接口</li>
+</ol>
+<p>以字符为单位。</p>
+<p>（1）eg. 键盘、打印机</p>
+<p>（2）传输速率低；不可寻址。</p>
+<p>（3）通常 中断驱动方式。</p>
+<p>（4）字符设备都属于独占设备，接口需要提供打开、关闭操作，以实现共享互斥。</p>
+<p>（5）get和put。顺序存取。建立字符缓冲区。</p>
+<p>（6）字符设备种类多，差异大。  in-control。通用指令。</p>
+<ol>
+<li>块设备接口</li>
+</ol>
+<p>以数据块为单位。</p>
+<p>（1）eg. 磁盘</p>
+<p>（2）传输速率高；可寻址。</p>
+<p>（3）通常DMA方式。</p>
+<p>（4）隐藏磁盘的二维结构。</p>
+<p>（5）将抽象命令映射为低层操作。</p>
+<p>（6）内存映射接口，通过内存的字节数组访问磁盘。 </p>
+<p>内存映射文件的访问，如同内存读&#x2F;写一样简单。</p>
+<ol>
+<li><p>网络设备接口</p>
+<p>网络套接字接口</p>
+</li>
+</ol>
+<p>（二）阻塞和非阻塞I&#x2F;O</p>
+<ol>
+<li>阻塞I&#x2F;O：调用I&#x2F;O操作时，进程阻塞。</li>
+</ol>
+<p>简单，适合并发量小的</p>
+<ol>
+<li>非阻塞I&#x2F;O：调用I&#x2F;O操作时，进程不阻塞。</li>
+</ol>
+<p>适合并发量大的。</p>
+<p>轮询方式询问I&#x2F;O操作是否完成，会占用CPU时间。</p>
+<hr>
+<p>王道选择题：</p>
+<ol>
+<li><p>判断：共享设备是指同一时刻内允许多个进程同时访问的设备。（x）</p>
+<blockquote>
+<p>应该是同一时间段内。</p>
+</blockquote>
+</li>
+<li><p>共享设备必须是可寻址的和可随机访问的设备。（否则就无法保证数据的完整性和统一性。）</p>
+</li>
+<li><p>虚拟设备指，把一个物理设备变换成多个对应的逻辑设备。</p>
+</li>
+<li><p>设备控制器通常要提供控制寄存器、状态寄存器、控制命令。</p>
+</li>
+<li><p>中断寄存器位于主机内，不存在I&#x2F;O地址寄存器。</p>
+</li>
+<li><p>通道是一种特殊的处理器，属于硬件技术。</p>
+</li>
+<li><p>DMA是一个控制器。CPU不需要给出DMA可以解释的程序，而给DMA发出一条命令，同时设置DMA控制器寄存器中的值，来启动DMA。</p>
+</li>
+<li><p>及时性不是设备分配中应考虑的问题。</p>
+</li>
+<li><p>设备的编号（作为区分硬件和是识别设备的代号），称为设备的绝对号。</p>
+</li>
+<li><p>通道控制设备控制器，设备控制器控制设备工作。</p>
+</li>
+<li><p>对于同一组输入&#x2F;输出命令，要么CPU给通道发命令，要么CPU直接给设备控制器发生命令，对于同一组命令，设备控制器和通道不会并行。</p>
+</li>
+<li><p>每类设备只需一个驱动程序。</p>
+</li>
+<li><p>设备无关的os软件向上层提供系统调用接口，根据设备类型选择调用相应的驱动程序。</p>
+</li>
+<li><p>设备驱动层负责执行os发出的I&#x2F;O命令，将上层的抽象I&#x2F;O要求转换为具体要求，发给设备控制器，控制设备工作，因设备不同而不同。</p>
+</li>
+<li><p>将系统调用参数翻译成设备操作命令的工作，由设备无关的os软件完成。</p>
+</li>
+<li><p>向设备寄存器的写命令，在设备驱动程序软件中完成的。</p>
+</li>
+<li><p>一定不由硬件来完成的是，主机获取设备输入。（由中断服务程序完成数据的输入和输出。）</p>
+</li>
+<li><p>有中断：中夺冠方式；DMA方式</p>
+<p>无中断：程序直接控制。</p>
+</li>
+<li><p>中断处理程序将设备控制器中的数据传送到内存的缓冲区（读入），或将要输出的数据传送到设备控制器（输出）。</p>
+</li>
+<li><p>对于不同设备，有不同的中断处理程序。</p>
+</li>
+<li><p>中断处理结束后，不一定会返回到被中断的进程。</p>
+<blockquote>
+<p>若采用（1）屏蔽中断方式（单重中断），会返回被中断进程。</p>
+<p>（2）中断嵌套方式（多重中断），若没有更高优先级的中断请求，就会返回被中断进程。；否则处理更高优先级的。</p>
+</blockquote>
+</li>
+<li><p>键盘，通过中断I&#x2F;O方式。计算机通过中断处理程序获得输入信息。</p>
+</li>
+<li><p>与设备无关的软件层，是系统调用的处理程序。</p>
+</li>
+<li><p>DMA方式最后发出中断请求，执行中断服务程序。</p>
+</li>
+</ol>
+<h1 id="5-2设备独立性软件"><a href="#5-2设备独立性软件" class="headerlink" title="5.2设备独立性软件"></a>5.2设备独立性软件</h1><h2 id="5-2-2高速缓存与缓冲区"><a href="#5-2-2高速缓存与缓冲区" class="headerlink" title="5.2.2高速缓存与缓冲区"></a>5.2.2高速缓存与缓冲区</h2><h3 id="一、磁盘高速缓冲-Disk-Cache"><a href="#一、磁盘高速缓冲-Disk-Cache" class="headerlink" title="一、磁盘高速缓冲   Disk Cache"></a>一、磁盘高速缓冲   Disk Cache</h3><p>提高磁盘I&#x2F;O速度。</p>
+<p>用<strong>内存</strong>中的存储空间，暂存磁盘中读出的盘块信息。</p>
+<h3 id="二、缓冲区-buffer"><a href="#二、缓冲区-buffer" class="headerlink" title="二、缓冲区   buffer"></a>二、缓冲区   buffer</h3><ol>
+<li><p>缓和CPU和I&#x2F;O设备间的速度不匹配。</p>
+</li>
+<li><p>硬件缓冲区成本太高，除关键部位外一般不用。</p>
+<p>用内存作为缓冲区。</p>
+</li>
+<li><p>缓冲区装满后才能取。</p>
+</li>
+<li><p>缓冲技术</p>
+</li>
+</ol>
+<p>（1）单缓冲</p>
+<p>T和C可并行，max(C,T)+M</p>
+<p>单缓冲区，在一个时刻只能单方向传递。</p>
+<p>（2）双缓冲</p>
+<p>C和M 可以与T并行，max(C+M,T)</p>
+<p>（3）循环缓冲</p>
+<p>in，out指针</p>
+<p>（4）缓冲池</p>
+<ul>
+<li>缓冲区仅是一块内存空间；而缓冲池包含用于管理的数据结构和一组操作函数的管理机制。</li>
+</ul>
+<p>（a）缓冲池供<strong>多个进程</strong>共享使用。</p>
+<p>（b）缓冲池由多个系统共用的缓冲区组成，包括：</p>
+<ul>
+<li>空缓冲队列、输入队列、输出队列</li>
+<li>以及 用于 收容输入、提取输入、收容输出、提取输出 数据的工作缓冲区。</li>
+</ul>
+<h3 id="三、对比"><a href="#三、对比" class="headerlink" title="三、对比"></a>三、对比</h3><table>
+<thead>
+<tr>
+<th align="center">高速缓存</th>
+<th align="center">缓冲区</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">保存数据拷贝</td>
+<td align="center">传递数据</td>
+</tr>
+<tr>
+<td align="center">存放高速设备经常要访问的数据</td>
+<td align="center">高速设备和低速设备通信都要经过缓冲区</td>
+</tr>
+<tr>
+<td align="center">高速设备有，低速设备一定有</td>
+<td align="center">高速设备有，低速设备不一定有</td>
+</tr>
+<tr>
+<td align="center">高速设备可能访问低速设备</td>
+<td align="center">高速设备永远不会访问低速设备</td>
+</tr>
+</tbody></table>
+<h2 id="5-2-3-设备分配与回收"><a href="#5-2-3-设备分配与回收" class="headerlink" title="5.2.3 设备分配与回收"></a>5.2.3 设备分配与回收</h2><ol>
+<li><p>每个通道连接多个设备控制器，每个设备控制器连接多个物理设备。</p>
+</li>
+<li><p>设备控制表DCT、控制器控制表COCT、通道控制表CHCT</p>
+</li>
+<li><p>系统设备表（SDT）：记录已连到系统中的所有物理设备的情况。</p>
+</li>
+<li><p>独占设备</p>
+<p>共享设备</p>
+<p>虚拟设备：属于可共享设备。</p>
+</li>
+<li><p>设备分配算法</p>
+<p>（1）FCFS</p>
+<p>（2）最高优先级算法：优先级相同时，按FCFS。</p>
+</li>
+<li><p>设备分配中的安全性，指防止进程死锁。</p>
+</li>
+<li><p>安全分配方式：进程发出I&#x2F;O请求后，进入阻塞态。</p>
+<p>（a）阻塞时不能再请求资源，也不能保持任何资源。</p>
+<p>（b）安全，但CPU和I&#x2F;O设备串行。</p>
+</li>
+<li><p>不安全分配方式：发出I&#x2F;O请求后，不阻塞，需要时可以接着发出请求。</p>
+<p>（a）仅当所请求设备已被其他进程占用时，才进入阻塞态。</p>
+<p>（b）一个进程可同时操作多个设备，进程推进迅速。</p>
+<p>（c）可能造成死锁。</p>
+</li>
+<li><p>先分配设备、再分配控制器、最后分配通道。</p>
+</li>
+<li><p>设备分配过程中，使用逻辑设备名。</p>
+<p>只有该类设备的所有设备都忙时，才会将该进程挂到该类设备的等待队列，否则就可以分配给它。</p>
+</li>
+<li><p>逻辑设备表（LUT），表项包含逻辑设备名、物理设备名、设备驱动程序的入口地址。</p>
+<p>（a）整个系统一张LUT</p>
+<p>​	逻辑设备名不能相同，主要用于单用户系统。</p>
+<p>（b）每个用户设置一张LUT，在系统中配置系统设备表。</p>
+<p>​	不同用户可以使用相同的逻辑设备名。</p>
+</li>
+</ol>
+<h2 id="5-2-4-SPOOLing技术（假脱机技术）"><a href="#5-2-4-SPOOLing技术（假脱机技术）" class="headerlink" title="5.2.4 SPOOLing技术（假脱机技术）"></a>5.2.4 SPOOLing技术（假脱机技术）</h2><ol>
+<li>缓和CPU和I&#x2F;O设备速度不匹配的矛盾。</li>
+<li><strong>将独占设备改为共享设备。</strong></li>
+<li>利用外围控制机，先将低速I&#x2F;O设备上的数据传到高速磁盘上，或者相反。</li>
+<li>引入多道程序技术后，用程序模拟外围控制机。</li>
+<li>空间换时间。</li>
+</ol>
+<h3 id="SPOOLing系统的组成"><a href="#SPOOLing系统的组成" class="headerlink" title="SPOOLing系统的组成"></a>SPOOLing系统的组成</h3><p>（1）输入井和输出井：</p>
+<ol>
+<li>磁盘上</li>
+<li>一个进程的数据保存为一个文件。</li>
+</ol>
+<p>（2）输入缓冲区和输出缓冲区</p>
+<p>内存上</p>
+<p>（3）输入进程和输出进程</p>
+<p>（4）井管理程序</p>
+<p>控制作业与磁盘井间的信息交换。</p>
+<h3 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h3><p>例如打印。</p>
+<p>进程提出请求，输出井为它分配一个缓冲区。（相当于分配一个逻辑设备。）</p>
+<p>实现了<strong>虚拟设备</strong>。</p>
+<hr>
+<p>王道选择：</p>
+<ol>
+<li>如果I&#x2F;O花费时间比CPU处理时间短的多，则缓冲区几乎无效。</li>
+<li>磁带机和打印机都不是共享设备。</li>
+<li>独占设备采用静态分配，共享设备采用动态分配。</li>
+<li>因设备不同而不同的，要采用设备驱动程序实现。</li>
+<li>系统实现设备与输入&#x2F;输出井之间数据的传送。</li>
+<li>可以使用文件名访问物理设备。</li>
+<li>读&#x2F;写设备的操作是由驱动程序控制完成的。</li>
+<li>提高单机资源利用率的关键技术是 多道程序设计技术。</li>
+<li>虚拟设备是靠SPOOLing技术实现的。</li>
+<li>SPOOLing技术的主要目的是提高独占设备的利用率。</li>
+<li>采用SPOOLing技术的计算机系统中，用户的打印结果首先被送到磁盘固定区域。</li>
+<li>SPOOLing系统中的用户程序可以随时将输出数据送到输出井中，待输出设备空闲时再由SPOOLing系统完成数据的输出操作。</li>
+<li>SPOOLing系统由 预输入程序、井管理程序、缓输出程序。</li>
+<li>采用SPOOLing技术的计算机系统，不需要外围计算机。</li>
+</ol>
+<h1 id="5-3磁盘和固态硬盘"><a href="#5-3磁盘和固态硬盘" class="headerlink" title="5.3磁盘和固态硬盘"></a>5.3磁盘和固态硬盘</h1><p>笔记未整理</p>
+<hr>
+<p>王道选择：</p>
+<ol>
+<li><p>文件系统不一定依赖于磁盘，也可存在于其他的存储介质上，如光盘、闪存、网络。</p>
+</li>
+<li><p>文件系统可以只占用磁盘的一部分空间，而不是整个磁盘；一个磁盘上可以有多个文件系统，也可以没有文件系统的空间。</p>
+</li>
+<li><p>文件系统需要磁盘来存储数据，磁盘需要文件系统来组织数据。</p>
+</li>
+<li><p>文件系统的组织信息放在磁盘上，这些信息和代码合在一起形成文件系统。</p>
+</li>
+<li><p>磁盘是可共享设备。但在每个时刻最多只能有一个作业启动它。</p>
+</li>
+<li><p>磁盘只能顺序读写。</p>
+</li>
+<li><p>既能顺序读写，又能按任意次序读&#x2F;写的存储器有光盘、U盘、磁盘。</p>
+</li>
+<li><p>磁盘调度为了缩短寻道时间。</p>
+</li>
+<li><p>磁盘上的文件以块为单位读写。</p>
+</li>
+<li><p>磁盘中读取数据的时间中，寻道时间影响最大。</p>
+</li>
+<li><p>！！若连续存放，<strong>顺序是按同柱面、同磁道（数量就是磁头&#x2F;盘面数）、下一个扇区</strong>。</p>
+</li>
+<li><p>若连续存放，磁盘的地址结构是（柱面号、磁头号、扇区号）。</p>
+</li>
+<li><p>！！<strong>注意要不要加一减一，从0还是1开始，是第几个还是它的序号，第几个是不是从0开始计数的</strong>。（可以先列举一下简单的情况看，要不要加一减一。）</p>
+</li>
+<li><p>算磁头移动的距离，可以是按某一个方向（磁道号增大&#x2F;减小），一定要单向的，终点减起点。</p>
+</li>
+<li><p>如果是读写一个磁道，则读&#x2F;写磁道时间是 1转要多少秒。即若某磁盘的平均转速为a秒&#x2F;转，则读写一个磁道的时间中的读写磁道时间是a秒。</p>
+</li>
+<li><p>占用磁道数：b&#x2F;N。（总字节数&#x2F;每个磁道的字节数）</p>
+</li>
+<li><p>不会导致磁头臂黏着的是FCFS。（像SCAN、CSCAN、SSTF都会导致磁头黏着）。</p>
+</li>
+<li><p>硬盘的操作系统引导扇区产生在，对硬盘进行高级格式化后。</p>
+<p>（引导扇区一定产生在分区之后。）</p>
+</li>
+<li><p>扇区数据的处理时间主要影响传输时间。</p>
+</li>
+<li><p>旋转延迟的大小（1）取决于磁盘空闲空间的分配程度（2）与文件的物理结构有关。</p>
+</li>
+<li><p>文件的物理结构与磁盘的分配方式相对应。</p>
+</li>
+<li><p>固态硬盘基于闪存技术，没有机械部件，随机读&#x2F;写不需要机械操作，速度明显高于磁盘。</p>
+</li>
+<li><p>固态硬盘写速度比较慢，读速度比较快。</p>
+</li>
+<li><p>固态硬盘比起机械硬盘的优势体现在随机存取的速度上。（机械硬盘转速很快，连续存取比随机存取快的多。）</p>
+</li>
+<li><p>静态磨损均衡算法通常比动态磨损均衡算法表现优秀。</p>
+</li>
+<li><p>固态硬盘需要磨损均衡，磁盘不需要。</p>
+</li>
+<li><p>优化文件物理块的分布可以改善磁盘设备I&#x2F;O性能。</p>
+<blockquote>
+<p>在磁盘上设置多个分区改善不了。</p>
+</blockquote>
+</li>
+<li><p>为文件分配连续的簇可以提高文件访问速度。</p>
+</li>
+<li><p>分区——低级格式化&#x2F;物理格式化。</p>
+</li>
+<li><p>将初始的文件系统数据结构存储到磁盘上——高级格式化&#x2F;逻辑格式化。</p>
+</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%AD%A6%E4%B9%A0/" class="category-chain-item">学习</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%AD%A6%E4%B9%A0/%E7%AC%94%E8%AE%B0/" class="category-chain-item">笔记</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%AD%A6%E4%B9%A0/%E7%AC%94%E8%AE%B0/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" class="category-chain-item">操作系统</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/OS/" class="print-no-link">#OS</a>
+      
+        <a href="/tags/IO%E7%AE%A1%E7%90%86/" class="print-no-link">#IO管理</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>OS王道笔记-第五章-IO管理</div>
+      <div>http://example.com/2024/08/10/OS-C5-I-O管理/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Sunnie</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年8月10日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/03/09/%E9%9A%8F%E8%AE%B0/" title="随记">
+                        <span class="hidden-mobile">随记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"hieaKWQ6TgeDbHRC0SWl0vur-gzGzoHsz","appKey":"L6gJefogednoYVPOZyxHMqed","path":"window.location.pathname","placeholder":"留言仅限讨论，禁止广告等行为","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
